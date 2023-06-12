@@ -18,7 +18,8 @@
   },
   "homepage": "https://github.com/codingLogan/throwaway-site#readme",
   "dependencies": {
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "express-session": "^1.17.3"
   },
   "type": "module"
 }
