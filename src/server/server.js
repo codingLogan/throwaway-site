@@ -29,6 +29,7 @@ app.use((req, res, next) => {
 
 // Routes
 app.post('/login', (req, res, next) => {
+  // Start with a fresh session
   req.session.regenerate((error) => {
     if (error) next(error)
 
@@ -36,15 +37,22 @@ app.post('/login', (req, res, next) => {
     req.session.save((error) => {
       if (error) next(error)
 
-      res.json({ message: 'success' })
+      res.json({ message: 'logged in' })
     })
   })
 })
 
-app.post('/logout', (req, res, next) => {
+app.get('/logout', (req, res, next) => {
   req.session.user = null
   req.session.save((error) => {
     if (error) next(error)
+
+    // Starts a new fresh session
+    req.session.regenerate((error) => {
+      if (error) next(error)
+
+      res.redirect('/')
+    })
   })
 })
 
@@ -57,10 +65,14 @@ app.post('/save', (req, res) => {
   res.json({ message: 'Saved' })
 })
 
-// Secure site pages
+// Secure site pages that need protecting
 app.get('/site.html', (req, res) => {
   console.log('Protect this route!')
-  res.sendFile(path.join(__dirname, '../../src/client/site.html'))
+  if (!req.session.user) {
+    res.redirect('/401.html')
+  } else {
+    res.sendFile(path.join(__dirname, '../../src/client/site.html'))
+  }
 })
 
 // Default to serving static files (web pages)
