@@ -2,6 +2,12 @@ import express from 'express'
 import session from 'express-session'
 import { createToken } from './csrf/csrf.js'
 
+import { fileURLToPath } from 'url'
+import path, { dirname } from 'path'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+
 const app = express()
 const port = 3000
 
@@ -17,30 +23,28 @@ app.use(
 
 // Request middleware
 app.use((req, res, next) => {
-  console.log('Body', req.body)
-  console.log('Pre-Request Session', req.session)
+  console.log(req.method, 'request', req.path)
   next()
 })
 
 // Routes
-app.post('/login', (req, res) => {
-  req.session.user = req.body.username
-  req.session.save((error) => {
-    if (error) {
-      res.status(500)
-      res.json({ error: 'Server error' })
-    }
+app.post('/login', (req, res, next) => {
+  req.session.regenerate((error) => {
+    if (error) next(error)
 
-    res.json({})
+    req.session.user = req.body.username
+    req.session.save((error) => {
+      if (error) next(error)
+
+      res.json({ message: 'success' })
+    })
   })
 })
 
-app.post('/logout', (req, res) => {
+app.post('/logout', (req, res, next) => {
   req.session.user = null
   req.session.save((error) => {
     if (error) next(error)
-
-    res.redirect('/error.html')
   })
 })
 
@@ -51,6 +55,12 @@ app.get('/csrf', (req, res) => {
 
 app.post('/save', (req, res) => {
   res.json({ message: 'Saved' })
+})
+
+// Secure site pages
+app.get('/site.html', (req, res) => {
+  console.log('Protect this route!')
+  res.sendFile(path.join(__dirname, '../../src/client/site.html'))
 })
 
 // Default to serving static files (web pages)

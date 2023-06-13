@@ -1,6 +1,6 @@
 const form = document.getElementById('myForm')
-const fname = document.getElementById('fname')
-const ftext = document.getElementById('ftext')
+const fname = document.getElementById('username')
+const ftext = document.getElementById('password')
 let csrfToken = null
 
 form.addEventListener('submit', (event) => {
@@ -8,28 +8,26 @@ form.addEventListener('submit', (event) => {
   event.preventDefault()
 
   // Output form values just because
-  console.log('form fields', fname.value, ftext.value)
+  console.log('form fields', username.value, password.value)
 
-  fetch('/save', {
+  fetch('/login', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'X-CSRF': csrfToken,
     },
-    body: JSON.stringify({ fname: fname.value, ftext: ftext.value }),
+    body: JSON.stringify({
+      username: username.value,
+      password: password.value,
+    }),
   })
-})
-
-function getCSRFToken() {
-  fetch('/csrf')
     .then((resp) => resp.json())
-    .then((data) => {
-      console.log({ data })
-      csrfToken = data.token
+    .then((resp) => {
+      console.log(resp)
+      window.location = 'site.html'
+      throw 'error'
     })
-}
-
-window.addEventListener('load', (event) => {
-  console.log('loaded')
-  getCSRFToken()
+    .catch((err) => {
+      console.error('Error during login')
+    })
 })
