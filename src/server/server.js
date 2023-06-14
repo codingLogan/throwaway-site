@@ -1,6 +1,8 @@
 import express from 'express'
 import session from 'express-session'
 import { createToken } from './csrf/csrf.js'
+import fs from 'fs'
+import https from 'https'
 
 import { fileURLToPath } from 'url'
 import path, { dirname } from 'path'
@@ -78,6 +80,10 @@ app.get('/site.html', (req, res) => {
 // Default to serving static files (web pages)
 app.use(express.static('src/client'))
 
-app.listen(port, () => {
+const httpsOptions = {
+  key: fs.readFileSync('src/server/key.pem'),
+  cert: fs.readFileSync('src/server/cert.pem'),
+}
+https.createServer(httpsOptions, app).listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })

@@ -1,1 +1,4 @@
 node_modules
+src/server/cert.pem
+src/server/key.pem
+src/server/keytmp.pem
